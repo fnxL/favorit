@@ -74,8 +74,8 @@ importers:
                 specifier: ^9.0.2
                 version: 9.0.2
             ua-parser-js:
-                specifier: ^1.0.38
-                version: 1.0.38
+                specifier: 2.0.0-beta.3
+                version: 2.0.0-beta.3
         devDependencies:
             '@eslint/js':
                 specifier: ^9.4.0
@@ -98,9 +98,6 @@ importers:
             '@types/node':
                 specifier: ^20.14.2
                 version: 20.14.2
-            '@types/ua-parser-js':
-                specifier: ^0.7.39
-                version: 0.7.39
             drizzle-kit:
                 specifier: ^0.22.7
                 version: 0.22.7
@@ -1001,12 +998,6 @@ packages:
         resolution:
             {
                 integrity: sha512-xyu6WAMVwv6AKFLB+e/7ySZVr/0zLCzOa7rSpq6jNwpqOrUbcACDWC+53d4n2QHOnDou0fbIsg8wZu/sxrnI4Q==,
-            }
-
-    '@types/ua-parser-js@0.7.39':
-        resolution:
-            {
-                integrity: sha512-P/oDfpofrdtF5xw433SPALpdSchtJmY7nsJItf8h3KXqOslkbySh8zq4dSWXH2oTjRvJ5PczVEoCZPow6GicLg==,
             }
 
     '@typescript-eslint/eslint-plugin@7.13.0':
@@ -3118,11 +3109,12 @@ packages:
         engines: { node: '>=14.17' }
         hasBin: true
 
-    ua-parser-js@1.0.38:
+    ua-parser-js@2.0.0-beta.3:
         resolution:
             {
-                integrity: sha512-Aq5ppTOfvrCMgAPneW1HfWj66Xi7XL+/mIy996R1/CLS/rcyJQm6QZdsKrUeivDFQ+Oc9Wyuwor8Ze8peEoUoQ==,
+                integrity: sha512-vZkEG/GplLRxj4XVrjLUQpSNg9Qj9RdnIqrOy8dqrLP1e5x7i2N8RfVYlWRbKEZdDSWfeWNcWS38gmieX03/5A==,
             }
+        hasBin: true
 
     undici-types@5.26.5:
         resolution:
@@ -3572,8 +3564,6 @@ snapshots:
     '@types/node@20.14.2':
         dependencies:
             undici-types: 5.26.5
-
-    '@types/ua-parser-js@0.7.39': {}
 
     '@typescript-eslint/eslint-plugin@7.13.0(@typescript-eslint/parser@7.13.0(eslint@9.4.0)(typescript@5.4.5))(eslint@9.4.0)(typescript@5.4.5)':
         dependencies:
@@ -4808,7 +4798,7 @@ snapshots:
 
     typescript@5.4.5: {}
 
-    ua-parser-js@1.0.38: {}
+    ua-parser-js@2.0.0-beta.3: {}
 
     undici-types@5.26.5: {}
 
