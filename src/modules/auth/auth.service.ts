@@ -8,7 +8,7 @@ import { UserRepository } from '@modules/user/';
 import { InvalidUserNameOrPasswordError } from '@constants/errors.js';
 import { UserSession } from './auth.model';
 
-type UserJwtPayload = {
+export type UserJwtPayload = {
     userId: number;
     fullName: string | null;
     username: string;
