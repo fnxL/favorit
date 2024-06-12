@@ -3,7 +3,7 @@ import { FastifyInstance, FastifySchema } from 'fastify';
 import { Type } from '@sinclair/typebox';
 import Nullable from '@utils/Nullable';
 
-const SignUpResponseSchema = Type.Object({
+export const SignUpResponseSchema = Type.Object({
     success: Type.Boolean(),
     user: Type.Optional(
         Type.Object({
