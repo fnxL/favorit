@@ -1,0 +1,17 @@
+{
+    "env": "development",
+    "app": {
+        "cookie": {
+            "secure": false
+        },
+        "port": 5000,
+        "jwt": {
+            "accessToken": {
+                "expiresIn": "60s"
+            },
+            "refreshToken": {
+                "expiresIn": "1d"
+            }
+        }
+    }
+}

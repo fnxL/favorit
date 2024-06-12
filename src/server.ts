@@ -1,4 +1,6 @@
+import 'dotenv/config';
 import { FastifyServerOptions } from 'fastify';
+import config from '@config';
 import init from './app.js';
 import closeWithGrace from 'close-with-grace';
 
@@ -40,7 +42,7 @@ if (process.stdout.isTTY) {
     });
 
     try {
-        await app.listen({ port: 5000 });
+        await app.listen({ port: config.get('app.port') });
     } catch (err) {
         app.log.error(err);
         process.exit(1);
