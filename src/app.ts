@@ -33,6 +33,11 @@ async function init(opts: FastifyServerOptions) {
         throw new Error('This is an error');
     });
 
+    app.ready(() => {
+        app.swagger();
+        console.log(app.printRoutes());
+    });
+
     return app;
 }
 

@@ -37,10 +37,6 @@ if (process.stdout.isTTY) {
         closeListeners.uninstall();
     });
 
-    app.addHook('onReady', async () => {
-        console.log(app.printRoutes());
-    });
-
     try {
         await app.listen({ port: config.get('app.port') });
     } catch (err) {
