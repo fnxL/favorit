@@ -52,6 +52,9 @@ importers:
             fastify-plugin:
                 specifier: ^4.5.1
                 version: 4.5.1
+            ua-parser-js:
+                specifier: ^1.0.38
+                version: 1.0.38
         devDependencies:
             '@eslint/js':
                 specifier: ^9.4.0
@@ -2187,6 +2190,12 @@ packages:
         engines: { node: '>=14.17' }
         hasBin: true
 
+    ua-parser-js@1.0.38:
+        resolution:
+            {
+                integrity: sha512-Aq5ppTOfvrCMgAPneW1HfWj66Xi7XL+/mIy996R1/CLS/rcyJQm6QZdsKrUeivDFQ+Oc9Wyuwor8Ze8peEoUoQ==,
+            }
+
     undici-types@5.26.5:
         resolution:
             {
@@ -3429,6 +3438,8 @@ snapshots:
             - supports-color
 
     typescript@5.4.5: {}
+
+    ua-parser-js@1.0.38: {}
 
     undici-types@5.26.5: {}
 
