@@ -1,7 +1,13 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifySchema } from 'fastify';
+
+const schema: FastifySchema = {
+    tags: ['Authentication'],
+    summary: 'Logout',
+    description: 'Logs out the user and deletes the user session',
+};
 
 export default async function (app: FastifyInstance) {
-    app.get('/logout', async function (request, reply) {
+    app.get('/logout', { schema }, async function (request, reply) {
         const refreshToken = request.cookies.refreshToken;
         if (!refreshToken) {
             reply.status(204);
@@ -19,9 +25,5 @@ export default async function (app: FastifyInstance) {
 
         await authService.logout(refreshToken);
         reply.clearCookie('refreshToken').status(204);
-
-        return {
-            success: true,
-        };
     });
 }
