@@ -13,6 +13,7 @@
         "db:push": "drizzle-kit push",
         "studio": "drizzle-kit studio --verbose",
         "start": "node dist/src/server.js",
+        "postinstall": "pnpm db:push",
         "prepare": "husky"
     },
     "lint-staged": {
