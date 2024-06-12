@@ -1,5 +1,6 @@
 import Fastify, { FastifyServerOptions } from 'fastify';
 import autoLoad from '@fastify/autoload';
+import verifyJWT from '@utils/verityJWT';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { join } from 'path';
 
@@ -11,6 +12,8 @@ async function init(opts: FastifyServerOptions) {
         dir: join(__dirname, 'plugins'),
         forceESM: true,
     });
+
+    app.decorateRequest('user', null).decorate('verifyJWT', verifyJWT);
 
     app.register(autoLoad, {
         dir: join(__dirname, 'routes'),
