@@ -12,7 +12,7 @@
 - Pre-commit git hooks using husky to run lint-staged
 - Three layer architecture using service and repository pattern
 - Dependency Injection with awilix
-- Secure authentication using JWT with accessToken and refreshToken mechanism
+- Secure authentication using JWT with accessToken and refreshToken rotation and reuse detection.
 - Save user's session in database with more information about device, os, and browser
 - API reference docs using swagger openapi and scaler reference docs.
 - API testing with bruno collections.
