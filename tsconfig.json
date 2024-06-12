@@ -3,8 +3,8 @@
         "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
         // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
         // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
-        "module": "NodeNext" /* Specify what module code is generated. */,
-        "moduleResolution": "NodeNext" /* Specify module resolution strategy: 'Node' (Node.js) or 'Node16' (Node.js v16) or 'NodeNext' (Node.js v18). */,
+        "module": "CommonJS" /* Specify what module code is generated. */,
+        "moduleResolution": "Node" /* Specify module resolution strategy: 'Node' (Node.js) or 'Node16' (Node.js v16) or 'NodeNext' (Node.js v18). */,
         "allowJs": true /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
         "sourceMap": true /* Create source map files for emitted JavaScript files. */,
         "outDir": "dist" /* Specify an output folder for all emitted files. */,
@@ -15,10 +15,10 @@
         "baseUrl": ".",
         "rootDir": "./",
         "paths": {
-            "@config": ["./src/config/index.ts"],
+            "@config": ["./src/config/"],
             "@constants/*": ["./src/constants/*"],
-            "@db": ["./src/db/index.ts"],
-            "@modules/*": ["./src/modules/*/index.ts"],
+            "@db": ["./src/db/"],
+            "@modules/*": ["./src/modules/*"],
             "@plugins/*": ["./src/plugins/*"],
             "@utils/*": ["./src/utils/*"]
         }

@@ -1,4 +1,4 @@
-import config from './schema.js';
+import config from './schema';
 
 // Load environment dependent configuration
 const env = config.get('env');

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { FastifyServerOptions } from 'fastify';
 import config from '@config';
-import init from './app.js';
+import init from './app';
 import closeWithGrace from 'close-with-grace';
 
 const opts: FastifyServerOptions = {
