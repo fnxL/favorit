@@ -147,6 +147,10 @@ class AuthService {
         return { newAccessToken, newRefreshToken };
     }
 
+    async getSession(refreshToken: string) {
+        return this.authRepo.getSession(refreshToken);
+    }
+
     async logout(refreshToken: string) {
         return this.authRepo.deleteSession(refreshToken);
     }

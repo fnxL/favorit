@@ -12,25 +12,21 @@ const schema: FastifySchema = {
 
 export default async function (app: FastifyInstance) {
     app.addHook('preHandler', function (request, reply, done) {
-        const refreshToken = request.cookies.refreshToken;
-
-        if (!refreshToken) {
-            reply.unauthorized();
-            return;
-        }
-
         done();
     });
 
     app.get('/token', { schema }, async function (request, reply) {
         const refreshToken = request.cookies.refreshToken;
+        if (!refreshToken) {
+            reply.unauthorized();
+            return;
+        }
         reply.clearCookie('refreshToken');
 
         const authService = app.diContainer.resolve('authService');
 
-        const { newAccessToken, newRefreshToken } = await authService.getTokens(
-            refreshToken!,
-        );
+        const { newAccessToken, newRefreshToken } =
+            await authService.getTokens(refreshToken);
 
         reply.setCookie('refreshToken', newRefreshToken, {
             maxAge: 24 * 60 * 60 * 1000,
