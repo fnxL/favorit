@@ -1,0 +1,15 @@
+meta {
+  name: Get a new accessToken
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseURL}}/auth/token
+  body: none
+  auth: none
+}
+
+script:post-response {
+  bru.setEnvVar("accessToken",res.body.accessToken);
+}

@@ -1,6 +1,7 @@
 import { DbClient } from '@db';
 import { UserSession, sessions } from './auth.model';
 import { eq } from 'drizzle-orm';
+import { users } from '@modules/user';
 
 type UpdateSession = Omit<UserSession, 'userId'>;
 class AuthRepository {
@@ -21,6 +22,29 @@ class AuthRepository {
                 refreshToken: session.refreshToken,
             })
             .where(eq(sessions.sessionId, sessionId));
+    }
+
+    async getSession(refreshToken: string) {
+        return this.db.query.sessions.findFirst({
+            with: {
+                user: {
+                    columns: {
+                        passwordHash: false,
+                    },
+                },
+            },
+            where: eq(sessions.refreshToken, refreshToken),
+        });
+    }
+
+    async deleteSession(refreshToken: string) {
+        return this.db
+            .delete(sessions)
+            .where(eq(sessions.refreshToken, refreshToken));
+    }
+
+    async deleteAllSessions(userId: number) {
+        return this.db.delete(sessions).where(eq(users.userId, userId));
     }
 }
 
