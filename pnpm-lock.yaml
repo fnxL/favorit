@@ -71,6 +71,9 @@ importers:
             '@types/node':
                 specifier: ^20.14.2
                 version: 20.14.2
+            '@types/ua-parser-js':
+                specifier: ^0.7.39
+                version: 0.7.39
             eslint:
                 specifier: ^9.4.0
                 version: 9.4.0
@@ -523,6 +526,12 @@ packages:
         resolution:
             {
                 integrity: sha512-xyu6WAMVwv6AKFLB+e/7ySZVr/0zLCzOa7rSpq6jNwpqOrUbcACDWC+53d4n2QHOnDou0fbIsg8wZu/sxrnI4Q==,
+            }
+
+    '@types/ua-parser-js@0.7.39':
+        resolution:
+            {
+                integrity: sha512-P/oDfpofrdtF5xw433SPALpdSchtJmY7nsJItf8h3KXqOslkbySh8zq4dSWXH2oTjRvJ5PczVEoCZPow6GicLg==,
             }
 
     '@typescript-eslint/eslint-plugin@7.13.0':
@@ -2476,6 +2485,8 @@ snapshots:
     '@types/node@20.14.2':
         dependencies:
             undici-types: 5.26.5
+
+    '@types/ua-parser-js@0.7.39': {}
 
     '@typescript-eslint/eslint-plugin@7.13.0(@typescript-eslint/parser@7.13.0(eslint@9.4.0)(typescript@5.4.5))(eslint@9.4.0)(typescript@5.4.5)':
         dependencies:
