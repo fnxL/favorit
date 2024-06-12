@@ -10,7 +10,6 @@ import {
     InvalidUserNameOrPasswordError,
 } from '@constants/errors.js';
 import { UserSession } from './auth.model';
-import { access } from 'fs';
 
 export type UserJwtPayload = {
     userId: number;
