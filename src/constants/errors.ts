@@ -17,3 +17,9 @@ export const InvalidUserNameOrPasswordError = createError(
     'Invalid username/email or password',
     401,
 );
+
+export const InvalidTokenError = createError(
+    'INVALID_TOKEN_ERROR',
+    'Token expired or invalid',
+    401,
+);

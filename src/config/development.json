@@ -10,7 +10,7 @@
                 "expiresIn": "60s"
             },
             "refreshToken": {
-                "expiresIn": "1d"
+                "expiresIn": "1s"
             }
         }
     }

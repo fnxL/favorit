@@ -25,7 +25,7 @@ export default async function (app: FastifyInstance) {
 
         const authService = app.diContainer.resolve('authService');
 
-        const { newAccessToken, newRefreshToken } =
+        const { accessToken, newRefreshToken } =
             await authService.getTokens(refreshToken);
 
         reply.setCookie('refreshToken', newRefreshToken, {
@@ -34,7 +34,7 @@ export default async function (app: FastifyInstance) {
 
         return {
             success: true,
-            accessToken: newAccessToken,
+            accessToken,
         };
     });
 }

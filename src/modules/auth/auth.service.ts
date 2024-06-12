@@ -5,8 +5,12 @@ import AuthRepository from './auth.repository';
 import { Credentials } from './auth.dto';
 import { UserAgent } from '@plugins/userAgent';
 import { UserRepository } from '@modules/user/';
-import { InvalidUserNameOrPasswordError } from '@constants/errors.js';
+import {
+    InvalidTokenError,
+    InvalidUserNameOrPasswordError,
+} from '@constants/errors.js';
 import { UserSession } from './auth.model';
+import { access } from 'fs';
 
 export type UserJwtPayload = {
     userId: number;
@@ -84,67 +88,64 @@ class AuthService {
         // and it's already been used and deleted
         // this is a re-use detection situation
         if (!foundSession) {
-            // we want to decode the token that we recieve
-            // to match that with an existing user
-            jwt.verify(
-                refreshToken,
-                config.get('app.jwt.refreshToken.secret'),
-                async (err, decoded) => {
-                    if (err) throw new Error('Invalid Token');
+            try {
+                // we want to decode the token that we recieve
+                // to match that with an existing user
+                const { user } = jwt.verify(
+                    refreshToken,
+                    config.get('app.jwt.refreshToken.secret'),
+                ) as RefreshTokenJwtPayload;
 
-                    const { user } = decoded as RefreshTokenJwtPayload;
+                // user compromised
+                const compromisedUser = await this.userRepo.getUser(
+                    user.userId,
+                );
 
-                    // user compromised
-                    const compromisedUser = await this.userRepo.getUser(
-                        user.userId,
+                if (!compromisedUser) {
+                    console.log(
+                        'Token reuse detected but no matching user found (malformed token)',
                     );
+                    throw new InvalidTokenError();
+                }
+                // logout user from all devices/sessions
+                console.log(
+                    'Token reuse detected! Logging out from all sessions',
+                );
 
-                    // malformed token
-                    if (!compromisedUser) {
-                        throw new Error('Invalid Token');
-                    }
-
-                    // logout user from all devices/sessions
-                    this.logoutAll(compromisedUser.userId);
-                },
-            );
-
-            throw new Error('Invalid token');
+                this.logoutAll(compromisedUser.userId);
+                throw new InvalidTokenError();
+            } catch (err) {
+                console.log('Token reuse detected, but expired');
+                throw new InvalidTokenError();
+            }
         }
 
         // we have a non-compromised refreshToken here at this point
+        try {
+            const decoded = jwt.verify(
+                refreshToken,
+                config.get('app.jwt.refreshToken.secret'),
+            );
+            // at this point the refreshToken is valid
+            // so generate new accessTokens and refreshTokens
+            const payload: RefreshTokenJwtPayload = {
+                sessionId: foundSession.sessionId,
+                user: foundSession.user,
+            };
+            const newRefreshToken = await this.generateRefreshToken(
+                foundSession.sessionId,
+                payload,
+            );
+            const accessToken = await this.generateAccessToken(
+                foundSession.user,
+            );
 
-        jwt.verify(
-            refreshToken,
-            config.get('app.jwt.refreshToken.secret'),
-            async (err, decoded) => {
-                if (err) {
-                    // the refreshToken is expired so logout the user
-                    // by deleting the session
-                    await this.logout(refreshToken);
-                    throw new Error('Token Expired');
-                }
-
-                // at this point the refreshToken is valid
-                // so generate new accessTokens and refreshTokens
-            },
-        );
-
-        const payload: RefreshTokenJwtPayload = {
-            sessionId: foundSession.sessionId,
-            user: foundSession.user,
-        };
-
-        const newRefreshToken = await this.generateRefreshToken(
-            foundSession.sessionId,
-            payload,
-        );
-
-        const newAccessToken = await this.generateAccessToken(
-            foundSession.user,
-        );
-
-        return { newAccessToken, newRefreshToken };
+            return { accessToken, newRefreshToken };
+        } catch (err) {
+            await this.logout(refreshToken);
+            console.log('Token was not malformed, but expired');
+            throw new InvalidTokenError();
+        }
     }
 
     async getSession(refreshToken: string) {
