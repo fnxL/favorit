@@ -13,13 +13,13 @@ class UserService {
         // check if user already exists.
         const user = await this.userRepo.getUser(rest.username);
 
+        if (user) throw new DuplicateUserError();
+
         if (rest.email) {
             // check if email is used;
             const user = await this.userRepo.getUser(rest.email);
             if (user) throw new EmailAlreadyUsedError();
         }
-
-        if (user) throw new DuplicateUserError();
 
         const passwordHash = await argon2.hash(password);
 

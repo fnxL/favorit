@@ -12,9 +12,17 @@ async function init(opts: FastifyServerOptions) {
         forceESM: true,
     });
 
+    app.register(autoLoad, {
+        dir: join(__dirname, 'routes'),
+        routeParams: true,
+        options: { prefix: '/api/' },
+        forceESM: true,
+    });
+
     app.get('/', async function (request, reply) {
         return {
             message: 'hi!',
+            userAgent: request.userAgent,
         };
     });
 
