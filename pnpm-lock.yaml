@@ -13,6 +13,9 @@ importers:
             '@fastify/autoload':
                 specifier: ^5.9.0
                 version: 5.9.0
+            '@fastify/awilix':
+                specifier: ^5.1.0
+                version: 5.1.0(awilix@10.0.2)(fastify@4.27.0)
             '@fastify/cookie':
                 specifier: ^9.3.1
                 version: 9.3.1
@@ -43,6 +46,9 @@ importers:
             argon2:
                 specifier: ^0.40.3
                 version: 0.40.3
+            awilix:
+                specifier: ^10.0.2
+                version: 10.0.2
             better-sqlite3:
                 specifier: ^11.0.0
                 version: 11.0.0
@@ -816,6 +822,15 @@ packages:
                 integrity: sha512-EM/2QKQW2oym0gwuPjhculnqbpqu0mWblxRJvYMTvb7SVRGWBh/SFWTtrNAb46fYIOirJUH95mc+dhYuFq99pg==,
             }
 
+    '@fastify/awilix@5.1.0':
+        resolution:
+            {
+                integrity: sha512-If1rlZ7nVdJFyaPAX89wD3ciI/KcvhdK4t6c8XnUdEwd48i2783fKiVJlvSpEcYcBmHeeHENm74NvHvQehUT2Q==,
+            }
+        peerDependencies:
+            awilix: '>=9.0.0'
+            fastify: ^4.0.0
+
     '@fastify/cookie@9.3.1':
         resolution:
             {
@@ -1214,6 +1229,22 @@ packages:
                 integrity: sha512-st8e519GWHa/azv8S87mcJvZs4WsgTBjOw/Ih1CP6u+8SZvcOeAYNG6JbsIrAUUJJ7JfmrnOkR8ipDS+u9SIRQ==,
             }
 
+    awilix-manager@5.3.0:
+        resolution:
+            {
+                integrity: sha512-n4EIBiksNmrYBAchEG8x52jHWuuFrBCbb/UzduojIqwHW1Ude9nSYOIeILXEKQkwxFgiId4X+ekNCNRNPO2PFw==,
+            }
+        engines: { node: '>=16' }
+        peerDependencies:
+            awilix: '>=9.0.0'
+
+    awilix@10.0.2:
+        resolution:
+            {
+                integrity: sha512-hFatb7eZFdtiWjjmGRSm/K/uxZpmcBlM+YoeMB3VpOPXk3xa6+7zctg3LRbUzoimom5bwGrePF0jXReO6b4zNQ==,
+            }
+        engines: { node: '>=14.0.0' }
+
     balanced-match@1.0.2:
         resolution:
             {
@@ -1300,6 +1331,12 @@ packages:
                 integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==,
             }
         engines: { node: '>=6' }
+
+    camel-case@4.1.2:
+        resolution:
+            {
+                integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==,
+            }
 
     chalk@4.1.2:
         resolution:
@@ -2287,6 +2324,12 @@ packages:
             }
         engines: { node: '>=18' }
 
+    lower-case@2.0.2:
+        resolution:
+            {
+                integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==,
+            }
+
     media-typer@0.3.0:
         resolution:
             {
@@ -2405,6 +2448,12 @@ packages:
                 integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==,
             }
 
+    no-case@3.0.4:
+        resolution:
+            {
+                integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==,
+            }
+
     node-abi@3.64.0:
         resolution:
             {
@@ -2506,6 +2555,12 @@ packages:
                 integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==,
             }
         engines: { node: '>=6' }
+
+    pascal-case@3.1.2:
+        resolution:
+            {
+                integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==,
+            }
 
     path-exists@4.0.0:
         resolution:
@@ -3008,6 +3063,12 @@ packages:
             }
         hasBin: true
 
+    tslib@2.6.3:
+        resolution:
+            {
+                integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==,
+            }
+
     tsx@4.15.2:
         resolution:
             {
@@ -3399,6 +3460,13 @@ snapshots:
 
     '@fastify/autoload@5.9.0': {}
 
+    '@fastify/awilix@5.1.0(awilix@10.0.2)(fastify@4.27.0)':
+        dependencies:
+            awilix: 10.0.2
+            awilix-manager: 5.3.0(awilix@10.0.2)
+            fastify: 4.27.0
+            fastify-plugin: 4.5.1
+
     '@fastify/cookie@9.3.1':
         dependencies:
             cookie-signature: 1.2.1
@@ -3656,6 +3724,15 @@ snapshots:
             '@fastify/error': 3.4.1
             fastq: 1.17.1
 
+    awilix-manager@5.3.0(awilix@10.0.2):
+        dependencies:
+            awilix: 10.0.2
+
+    awilix@10.0.2:
+        dependencies:
+            camel-case: 4.1.2
+            fast-glob: 3.3.2
+
     balanced-match@1.0.2: {}
 
     base64-js@1.5.1: {}
@@ -3705,6 +3782,11 @@ snapshots:
             ieee754: 1.2.1
 
     callsites@3.1.0: {}
+
+    camel-case@4.1.2:
+        dependencies:
+            pascal-case: 3.1.2
+            tslib: 2.6.3
 
     chalk@4.1.2:
         dependencies:
@@ -4301,6 +4383,10 @@ snapshots:
             strip-ansi: 7.1.0
             wrap-ansi: 9.0.0
 
+    lower-case@2.0.2:
+        dependencies:
+            tslib: 2.6.3
+
     media-typer@0.3.0: {}
 
     merge-stream@2.0.0: {}
@@ -4347,6 +4433,11 @@ snapshots:
     napi-build-utils@1.0.2: {}
 
     natural-compare@1.4.0: {}
+
+    no-case@3.0.4:
+        dependencies:
+            lower-case: 2.0.2
+            tslib: 2.6.3
 
     node-abi@3.64.0:
         dependencies:
@@ -4400,6 +4491,11 @@ snapshots:
     parent-module@1.0.1:
         dependencies:
             callsites: 3.1.0
+
+    pascal-case@3.1.2:
+        dependencies:
+            no-case: 3.0.4
+            tslib: 2.6.3
 
     path-exists@4.0.0: {}
 
@@ -4676,6 +4772,8 @@ snapshots:
             mylas: 2.1.13
             normalize-path: 3.0.0
             plimit-lit: 1.6.1
+
+    tslib@2.6.3: {}
 
     tsx@4.15.2:
         dependencies:
