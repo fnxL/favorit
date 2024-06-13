@@ -1,4 +1,4 @@
-# Favorit Backend
+b# Favorit Backend
 
 - TypeScript
 - typescript-eslint and prettier
@@ -7,15 +7,15 @@
 - Import path aliases
 - Input validation using JSON schema with typebox
 - Graceful Shutdown
-- SQLite w/ Drizzle-ORM
+- SQLite with Drizzle-ORM
 - Config management with convict and dotenv
 - Pre-commit git hooks using husky to run lint-staged
 - Three layer architecture using service and repository pattern
-- Dependency Injection with awilix
+- Dependency Injection and Inversion of Control with awilix
 - Secure authentication using JWT with accessToken and refreshToken rotation and reuse detection.
 - Save user's session in database with more information about device, os, and browser
-- API reference docs using swagger openapi and scaler reference docs.
-- API testing with bruno collections.
+- Automatic API reference docs using swagger openapi and scalar.
+- API testing with bruno.
 
 
 
