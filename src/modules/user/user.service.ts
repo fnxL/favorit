@@ -1,34 +1,27 @@
 import argon2 from 'argon2';
-import { User, NewUser, UserRepository } from '@modules/user/';
+import { User, NewUser, CreateUser, UserRepository } from '@modules/user/';
 import { DuplicateUserError, EmailAlreadyUsedError } from '@constants/errors';
 
 class UserService {
-    private userRepo: UserRepository;
-
-    constructor(userRepository: UserRepository) {
-        this.userRepo = userRepository;
-    }
+    constructor(private readonly userRepository: UserRepository) {}
 
     async createUser({ password, ...rest }: NewUser) {
-        // check if user already exists.
-        const user = await this.userRepo.getUser(rest.username);
-
-        if (user) throw new DuplicateUserError();
+        const findUser = await this.userRepository.getUser(rest.username);
+        if (findUser) throw new DuplicateUserError();
 
         if (rest.email) {
             // check if email is used;
-            const user = await this.userRepo.getUser(rest.email);
+            const user = await this.userRepository.getUser(rest.email);
             if (user) throw new EmailAlreadyUsedError();
         }
 
         const passwordHash = await argon2.hash(password);
-
-        const newUser: User = {
+        const user: CreateUser = {
             passwordHash,
             ...rest,
         };
 
-        return this.userRepo.createUser(newUser);
+        return this.userRepository.createUser(user);
     }
 }
 

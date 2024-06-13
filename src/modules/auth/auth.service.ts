@@ -1,76 +1,54 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import argon2 from 'argon2';
 import config from '@config';
 import AuthRepository from './auth.repository';
 import { Credentials } from './auth.dto';
 import { UserAgent } from '@plugins/userAgent';
-import { UserRepository } from '@modules/user/';
+import { User, UserRepository } from '@modules/user/';
 import {
     InvalidTokenError,
     InvalidUserNameOrPasswordError,
 } from '@constants/errors.js';
 import { UserSession } from './auth.model';
 
-export type UserJwtPayload = {
-    userId: number;
-    fullName: string | null;
-    username: string;
-    email: string | null;
-    createdAt: string | null;
-    updatedAt: string | null;
-};
+export type UserJwtPayload = Omit<User, 'passwordHash'>;
 
-type RefreshTokenJwtPayload = {
-    sessionId: number;
+type RefreshTokenJwt = JwtPayload & {
+    sessionId: string;
     user: UserJwtPayload;
 };
 
 class AuthService {
-    private userRepo: UserRepository;
-    private authRepo: AuthRepository;
-
     constructor(
-        userRepository: UserRepository,
-        authRepository: AuthRepository,
-    ) {
-        this.userRepo = userRepository;
-        this.authRepo = authRepository;
-    }
+        private readonly userRepository: UserRepository,
+        private readonly authRepository: AuthRepository,
+    ) {}
 
     async login(credentials: Credentials, userAgent: UserAgent) {
         let emailOrUsername: string;
         if (this.hasEmail(credentials)) emailOrUsername = credentials.email;
         else emailOrUsername = credentials.username;
 
-        // check if user exists with given username/email
-        const user = await this.userRepo.getUser(emailOrUsername);
-        if (!user) throw new InvalidUserNameOrPasswordError();
+        const findUser = await this.userRepository.getUser(emailOrUsername);
+        if (!findUser) throw new InvalidUserNameOrPasswordError();
 
-        // verify if user password matches with passwordHash in the db
-        const passwordHash = await this.userRepo.getPasswordHash(user.userId);
         const isMatch = await argon2.verify(
-            passwordHash!,
+            findUser.passwordHash,
             credentials.password,
         );
-
         if (!isMatch) throw new InvalidUserNameOrPasswordError();
 
-        // create a user session
         const session: UserSession = {
-            userId: user.userId,
+            userId: findUser.userId,
             ...userAgent,
         };
-        const [newSession] = await this.authRepo.createSession(session);
+        const [newSession] = await this.authRepository.createSession(session);
 
-        const refreshPayload: RefreshTokenJwtPayload = {
-            sessionId: newSession.sessionId,
-            user,
-        };
         const refreshToken = await this.generateRefreshToken(
             newSession.sessionId,
-            refreshPayload,
+            findUser,
         );
-        const accessToken = await this.generateAccessToken(user);
+        const accessToken = await this.generateAccessToken(findUser);
 
         return { accessToken, refreshToken };
     }
@@ -81,25 +59,24 @@ class AuthService {
      * (This is refresh token rotation)
      */
     async getTokens(refreshToken: string) {
-        const foundSession = await this.authRepo.getSession(refreshToken);
+        const findSession = await this.authRepository.getSession(refreshToken);
 
         // if no sesion exist, that means the refreshToken does not exist anymore
         // and it's already been used and deleted
         // this is a re-use detection situation
-        if (!foundSession) {
+        if (!findSession) {
             try {
                 // we want to decode the token that we recieve
                 // to match that with an existing user
                 const { user } = jwt.verify(
                     refreshToken,
                     config.get('app.jwt.refreshToken.secret'),
-                ) as RefreshTokenJwtPayload;
+                ) as RefreshTokenJwt;
 
                 // user compromised
-                const compromisedUser = await this.userRepo.getUser(
+                const compromisedUser = await this.userRepository.getUser(
                     user.userId,
                 );
-
                 if (!compromisedUser) {
                     console.log(
                         'Token reuse detected but no matching user found (malformed token)',
@@ -110,7 +87,6 @@ class AuthService {
                 console.log(
                     'Token reuse detected! Logging out from all sessions',
                 );
-
                 this.logoutAll(compromisedUser.userId);
                 throw new InvalidTokenError();
             } catch (err) {
@@ -118,27 +94,18 @@ class AuthService {
                 throw new InvalidTokenError();
             }
         }
-
         // we have a non-compromised refreshToken here at this point
         try {
-            const decoded = jwt.verify(
-                refreshToken,
-                config.get('app.jwt.refreshToken.secret'),
-            );
+            jwt.verify(refreshToken, config.get('app.jwt.refreshToken.secret'));
             // at this point the refreshToken is valid
             // so generate new accessTokens and refreshTokens
-            const payload: RefreshTokenJwtPayload = {
-                sessionId: foundSession.sessionId,
-                user: foundSession.user,
-            };
             const newRefreshToken = await this.generateRefreshToken(
-                foundSession.sessionId,
-                payload,
+                findSession.sessionId,
+                findSession.user,
             );
             const accessToken = await this.generateAccessToken(
-                foundSession.user,
+                findSession.user,
             );
-
             return { accessToken, newRefreshToken };
         } catch (err) {
             await this.logout(refreshToken);
@@ -148,15 +115,15 @@ class AuthService {
     }
 
     async getSession(refreshToken: string) {
-        return this.authRepo.getSession(refreshToken);
+        return this.authRepository.getSession(refreshToken);
     }
 
     async logout(refreshToken: string) {
-        return this.authRepo.deleteSession(refreshToken);
+        return this.authRepository.deleteSession(refreshToken);
     }
 
     async logoutAll(userId: number) {
-        return this.authRepo.deleteAllSessions(userId);
+        return this.authRepository.deleteAllSessions(userId);
     }
 
     // type guard to check if credentials are email and password
@@ -168,8 +135,13 @@ class AuthService {
 
     private async generateRefreshToken(
         sessionId: number,
-        payload: RefreshTokenJwtPayload,
+        { passwordHash, ...user }: User,
     ) {
+        const payload = {
+            sessionId,
+            user,
+        };
+
         const token = jwt.sign(
             payload,
             config.get('app.jwt.refreshToken.secret'),
@@ -177,15 +149,19 @@ class AuthService {
                 expiresIn: config.get('app.jwt.refreshToken.expiresIn'),
             },
         );
-        // update this token in the session
-        this.authRepo.updateSession(sessionId, { refreshToken: token });
+        // update this token in the session  (rotate refreshToken)
+        await this.authRepository.updateSession(sessionId, {
+            refreshToken: token,
+        });
+
         return token;
     }
 
-    private async generateAccessToken(payload: UserJwtPayload) {
-        return jwt.sign(payload, config.get('app.jwt.accessToken.secret'), {
-            expiresIn: config.get('app.jwt.accessToken.expiresIn'),
-        });
+    private async generateAccessToken({ passwordHash, ...payload }: User) {
+        const secretKey = config.get('app.jwt.accessToken.secret');
+        const expiresIn = config.get('app.jwt.accessToken.expiresIn');
+
+        return jwt.sign(payload, secretKey, { expiresIn });
     }
 }
 

@@ -27,11 +27,7 @@ class AuthRepository {
     async getSession(refreshToken: string) {
         return this.db.query.sessions.findFirst({
             with: {
-                user: {
-                    columns: {
-                        passwordHash: false,
-                    },
-                },
+                user: true,
             },
             where: eq(sessions.refreshToken, refreshToken),
         });

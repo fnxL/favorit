@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '@config';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { UserJwtPayload } from '@modules/auth';
@@ -18,7 +18,6 @@ declare module 'fastify' {
 
 async function verifyJWT(request: FastifyRequest, reply: FastifyReply) {
     const authorization = request.headers.authorization;
-
     if (!authorization) {
         reply.unauthorized();
         return;
@@ -34,8 +33,7 @@ async function verifyJWT(request: FastifyRequest, reply: FastifyReply) {
                 reply.unauthorized();
                 return;
             }
-            const user = decoded as UserJwtPayload;
-            request.user = user;
+            request.user = decoded as UserJwtPayload;
         },
     );
 }

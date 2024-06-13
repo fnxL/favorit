@@ -1,4 +1,9 @@
-import { InferInsertModel, relations, sql } from 'drizzle-orm';
+import {
+    InferInsertModel,
+    InferSelectModel,
+    relations,
+    sql,
+} from 'drizzle-orm';
 import { text, integer, sqliteTable } from 'drizzle-orm/sqlite-core';
 import { sessions } from '@modules/auth/auth.model';
 
@@ -14,7 +19,8 @@ export const users = sqliteTable('users', {
         .$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
-export type User = InferInsertModel<typeof users>;
+export type CreateUser = InferInsertModel<typeof users>;
+export type User = InferSelectModel<typeof users>;
 
 export const userRelations = relations(users, ({ many }) => ({
     sessions: many(sessions),
