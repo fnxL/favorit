@@ -18,6 +18,16 @@ const schema: FastifySchema = {
 };
 
 export default async function (app: FastifyInstance) {
+    app.addHook('preHandler', async function (request, reply) {
+        // delete an old token during login
+        const refreshToken = request.cookies.refreshToken;
+        if (refreshToken) {
+            reply.clearCookie('refreshToken');
+            const authService = app.diContainer.resolve('authService');
+            await authService.logout(refreshToken);
+        }
+    });
+
     app.post<{ Body: Credentials }>(
         '/login',
         {
