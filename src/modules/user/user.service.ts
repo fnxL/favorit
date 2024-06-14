@@ -3,15 +3,15 @@ import { User, NewUser, CreateUser, UserRepository } from '@modules/user/';
 import { DuplicateUserError, EmailAlreadyUsedError } from '@constants/errors';
 
 class UserService {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(private readonly userRepo: UserRepository) {}
 
     async createUser({ password, ...rest }: NewUser) {
-        const findUser = await this.userRepository.getUser(rest.username);
+        const findUser = await this.userRepo.getUser(rest.username);
         if (findUser) throw new DuplicateUserError();
 
         if (rest.email) {
             // check if email is used;
-            const user = await this.userRepository.getUser(rest.email);
+            const user = await this.userRepo.getUser(rest.email);
             if (user) throw new EmailAlreadyUsedError();
         }
 
@@ -21,7 +21,7 @@ class UserService {
             ...rest,
         };
 
-        return this.userRepository.createUser(user);
+        return this.userRepo.createUser(user);
     }
 }
 

@@ -10,6 +10,7 @@ import {
     InvalidUserNameOrPasswordError,
 } from '@constants/errors.js';
 import { UserSession } from './auth.model';
+import { is } from 'drizzle-orm';
 
 export type UserJwtPayload = Omit<User, 'passwordHash'>;
 
@@ -20,8 +21,8 @@ type RefreshTokenJwt = JwtPayload & {
 
 class AuthService {
     constructor(
-        private readonly userRepository: UserRepository,
-        private readonly authRepository: AuthRepository,
+        private readonly userRepo: UserRepository,
+        private readonly authRepo: AuthRepository,
     ) {}
 
     async login(credentials: Credentials, userAgent: UserAgent) {
@@ -29,28 +30,42 @@ class AuthService {
         if (this.hasEmail(credentials)) emailOrUsername = credentials.email;
         else emailOrUsername = credentials.username;
 
-        const findUser = await this.userRepository.getUser(emailOrUsername);
-        if (!findUser) throw new InvalidUserNameOrPasswordError();
+        const findUser = await this.userRepo.getUser(emailOrUsername);
 
-        const isMatch = await argon2.verify(
-            findUser.passwordHash,
-            credentials.password,
+        if (!findUser) {
+            throw new InvalidUserNameOrPasswordError();
+        }
+
+        await this.verifyPassword(findUser.passwordHash, credentials.password);
+
+        const { accessToken, refreshToken } = await this.createSessionAndTokens(
+            findUser,
+            userAgent,
         );
-        if (!isMatch) throw new InvalidUserNameOrPasswordError();
+        return { accessToken, refreshToken };
+    }
 
+    private async createSessionAndTokens(user: User, userAgent: UserAgent) {
         const session: UserSession = {
-            userId: findUser.userId,
+            userId: user.userId,
             ...userAgent,
         };
-        const [newSession] = await this.authRepository.createSession(session);
+        const [newSession] = await this.authRepo.createSession(session);
 
         const refreshToken = await this.generateRefreshToken(
             newSession.sessionId,
-            findUser,
+            user,
         );
-        const accessToken = await this.generateAccessToken(findUser);
+        const accessToken = await this.generateAccessToken(user);
 
         return { accessToken, refreshToken };
+    }
+
+    private async verifyPassword(digest: string, password: string) {
+        const isMatch = await argon2.verify(digest, password);
+        if (!isMatch) {
+            throw new InvalidUserNameOrPasswordError();
+        }
     }
 
     /**
@@ -59,7 +74,7 @@ class AuthService {
      * (This is refresh token rotation)
      */
     async getTokens(refreshToken: string) {
-        const findSession = await this.authRepository.getSession(refreshToken);
+        const findSession = await this.authRepo.getSession(refreshToken);
 
         // if no sesion exist, that means the refreshToken does not exist anymore
         // and it's already been used and deleted
@@ -74,7 +89,7 @@ class AuthService {
                 ) as RefreshTokenJwt;
 
                 // user compromised
-                const compromisedUser = await this.userRepository.getUser(
+                const compromisedUser = await this.userRepo.getUser(
                     user.userId,
                 );
                 if (!compromisedUser) {
@@ -115,15 +130,15 @@ class AuthService {
     }
 
     async getSession(refreshToken: string) {
-        return this.authRepository.getSession(refreshToken);
+        return this.authRepo.getSession(refreshToken);
     }
 
     async logout(refreshToken: string) {
-        return this.authRepository.deleteSession(refreshToken);
+        return this.authRepo.deleteSession(refreshToken);
     }
 
     async logoutAll(userId: number) {
-        return this.authRepository.deleteAllSessions(userId);
+        return this.authRepo.deleteAllSessions(userId);
     }
 
     // type guard to check if credentials are email and password
@@ -150,7 +165,7 @@ class AuthService {
             },
         );
         // update this token in the session  (rotate refreshToken)
-        await this.authRepository.updateSession(sessionId, {
+        await this.authRepo.updateSession(sessionId, {
             refreshToken: token,
         });
 

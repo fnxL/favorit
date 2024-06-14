@@ -8,9 +8,9 @@ import { AuthRepository, AuthService } from '@modules/auth';
 declare module '@fastify/awilix' {
     interface Cradle {
         db: typeof database;
-        userRepository: UserRepository;
+        userRepo: UserRepository;
         userService: UserService;
-        authRepository: AuthRepository;
+        authRepo: AuthRepository;
         authService: AuthService;
     }
 }
@@ -26,13 +26,13 @@ export default fastifyPlugin(async app => {
 
     diContainerClassic.register({
         db: asValue(database),
-        userRepository: asClass(UserRepository, {
+        userRepo: asClass(UserRepository, {
             lifetime: Lifetime.SINGLETON,
         }),
         userService: asClass(UserService, {
             lifetime: Lifetime.SINGLETON,
         }),
-        authRepository: asClass(AuthRepository, {
+        authRepo: asClass(AuthRepository, {
             lifetime: Lifetime.SINGLETON,
         }),
         authService: asClass(AuthService, {
