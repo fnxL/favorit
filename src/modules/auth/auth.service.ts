@@ -30,16 +30,16 @@ class AuthService {
         if (this.hasEmail(credentials)) emailOrUsername = credentials.email;
         else emailOrUsername = credentials.username;
 
-        const findUser = await this.userRepo.getUser(emailOrUsername);
+        const foundUser = await this.userRepo.getUser(emailOrUsername);
 
-        if (!findUser) {
+        if (!foundUser) {
             throw new InvalidUserNameOrPasswordError();
         }
 
-        await this.verifyPassword(findUser.passwordHash, credentials.password);
+        await this.verifyPassword(foundUser.passwordHash, credentials.password);
 
         const { accessToken, refreshToken } = await this.createSessionAndTokens(
-            findUser,
+            foundUser,
             userAgent,
         );
         return { accessToken, refreshToken };
@@ -74,12 +74,12 @@ class AuthService {
      * (This is refresh token rotation)
      */
     async getTokens(refreshToken: string) {
-        const findSession = await this.authRepo.getSession(refreshToken);
+        const foundSession = await this.authRepo.getSession(refreshToken);
 
         // if no sesion exist, that means the refreshToken does not exist anymore
         // and it's already been used and deleted
         // this is a re-use detection situation
-        if (!findSession) {
+        if (!foundSession) {
             try {
                 // we want to decode the token that we recieve
                 // to match that with an existing user
@@ -115,11 +115,11 @@ class AuthService {
             // at this point the refreshToken is valid
             // so generate new accessTokens and refreshTokens
             const newRefreshToken = await this.generateRefreshToken(
-                findSession.sessionId,
-                findSession.user,
+                foundSession.sessionId,
+                foundSession.user,
             );
             const accessToken = await this.generateAccessToken(
-                findSession.user,
+                foundSession.user,
             );
             return { accessToken, newRefreshToken };
         } catch (err) {
