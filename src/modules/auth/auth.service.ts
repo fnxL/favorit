@@ -69,51 +69,24 @@ class AuthService {
     }
 
     /**
-     * Issue a new accessToken and refreshToken everytime
-     * a user refreshes accessToken
+     * Issues a new accessToken and refreshToken everytime
+     * a user refreshes accessToken and detects reuse of refreshToken
      * (This is refresh token rotation)
      */
     async getTokens(refreshToken: string) {
         const foundSession = await this.authRepo.getSession(refreshToken);
-
         // if no sesion exist, that means the refreshToken does not exist anymore
         // and it's already been used and deleted
         // this is a re-use detection situation
         if (!foundSession) {
-            try {
-                // we want to decode the token that we recieve
-                // to match that with an existing user
-                const { user } = jwt.verify(
-                    refreshToken,
-                    config.get('app.jwt.refreshToken.secret'),
-                ) as RefreshTokenJwt;
-
-                // user compromised
-                const compromisedUser = await this.userRepo.getUser(
-                    user.userId,
-                );
-                if (!compromisedUser) {
-                    console.log(
-                        'Token reuse detected but no matching user found (malformed token)',
-                    );
-                    throw new InvalidTokenError();
-                }
-                // logout user from all devices/sessions
-                console.log(
-                    'Token reuse detected! Logging out from all sessions',
-                );
-                this.logoutAll(compromisedUser.userId);
-                throw new InvalidTokenError();
-            } catch (err) {
-                console.log('Token reuse detected, but expired');
-                throw new InvalidTokenError();
-            }
+            await this.handleTokenReuse(refreshToken);
+            throw new InvalidTokenError();
         }
-        // we have a non-compromised refreshToken here at this point
+        // We know the session exists, so the refresh token should be valid here
         try {
             jwt.verify(refreshToken, config.get('app.jwt.refreshToken.secret'));
             // at this point the refreshToken is valid
-            // so generate new accessTokens and refreshTokens
+            // so generate new tokens
             const newRefreshToken = await this.generateRefreshToken(
                 foundSession.sessionId,
                 foundSession.user,
@@ -121,10 +94,44 @@ class AuthService {
             const accessToken = await this.generateAccessToken(
                 foundSession.user,
             );
+
             return { accessToken, newRefreshToken };
         } catch (err) {
+            // If an error occurs during verification, assume the token is expired
             await this.logout(refreshToken);
-            console.log('Token was not malformed, but expired');
+            console.error('Token expired', err);
+            throw new InvalidTokenError();
+        }
+    }
+
+    private async handleTokenReuse(refreshToken: string) {
+        try {
+            // we want to decode the token that we recieve
+            // to match that with an existing user
+            const { user } = jwt.verify(
+                refreshToken,
+                config.get('app.jwt.refreshToken.secret'),
+            ) as RefreshTokenJwt;
+
+            const compromisedUser = await this.userRepo.getUser(user.userId);
+
+            if (compromisedUser) {
+                console.warn(
+                    'Token reuse detected! Logging out from all sessions',
+                );
+                await this.logoutAll(compromisedUser.userId);
+                throw new InvalidTokenError();
+            }
+
+            // if we don't find a user, that means the token is malformed
+            // and we can safely ignore it
+            console.info(
+                'Token reuse detected but no matching user found (potentially malformed token)',
+            );
+            // Consider logging the token for further investigation
+            throw new InvalidTokenError();
+        } catch (err) {
+            console.info('Token reuse detected, but token is expired');
             throw new InvalidTokenError();
         }
     }
