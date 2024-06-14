@@ -8,9 +8,8 @@ import { User, UserRepository } from '@modules/user/';
 import {
     InvalidTokenError,
     InvalidUserNameOrPasswordError,
-} from '@constants/errors.js';
+} from '@constants/errors';
 import { UserSession } from './auth.model';
-import { is } from 'drizzle-orm';
 
 export type UserJwtPayload = Omit<User, 'passwordHash'>;
 
@@ -123,7 +122,7 @@ class AuthService {
                 throw new InvalidTokenError();
             }
 
-            // if we don't find a user, that means the token is malformed
+            // if we don't find a user, that means the token is likely malformed
             // and we can safely ignore it
             console.info(
                 'Token reuse detected but no matching user found (potentially malformed token)',
